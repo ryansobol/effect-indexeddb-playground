@@ -1,4 +1,9 @@
 import { indexedDB, IDBKeyRange } from "fake-indexeddb";
+import { Effect, Console } from "effect";
+
+const program = Console.log("Hello, World!");
+
+Effect.runSync(program);
 
 const request = indexedDB.open("test", 3);
 
