@@ -2,7 +2,7 @@ import { indexedDB, IDBKeyRange } from "fake-indexeddb";
 
 const request = indexedDB.open("test", 3);
 
-request.onupgradeneeded = function (event: Event) {
+request.onupgradeneeded = (event: Event) => {
 	if (!event.target) return;
 
 	const target = event.target as IDBRequest<IDBDatabase>;
@@ -17,7 +17,7 @@ request.onupgradeneeded = function (event: Event) {
 	store.put({ title: "Bedrock Nights", author: "Barney", isbn: 345678 });
 };
 
-request.onsuccess = function (event: Event) {
+request.onsuccess = (event: Event) => {
 	if (!event.target) return;
 
 	const target = event.target as IDBRequest<IDBDatabase>;
@@ -28,7 +28,7 @@ request.onsuccess = function (event: Event) {
 	tx.objectStore("books")
 		.index("by_title")
 		.get("Quarry Memories")
-		.addEventListener("success", function (event: Event) {
+		.addEventListener("success", (event: Event) => {
 			if (!event.target) return;
 
 			const target = event.target as IDBRequest<{
@@ -41,7 +41,7 @@ request.onsuccess = function (event: Event) {
 		});
 
 	tx.objectStore("books").openCursor(IDBKeyRange.lowerBound(200000)).onsuccess =
-		function (event: Event) {
+		(event: Event) => {
 			if (!event.target) return;
 
 			const target = event.target as IDBRequest<IDBCursorWithValue | null>;
@@ -53,7 +53,7 @@ request.onsuccess = function (event: Event) {
 			}
 		};
 
-	tx.oncomplete = function () {
+	tx.oncomplete = () => {
 		console.log("All done!");
 	};
 };
