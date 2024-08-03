@@ -1,4 +1,4 @@
-import "fake-indexeddb/auto";
+import { indexedDB, IDBKeyRange } from "fake-indexeddb";
 
 var request = indexedDB.open("test", 3);
 
@@ -12,21 +12,38 @@ request.onupgradeneeded = function () {
   store.put({ title: "Bedrock Nights", author: "Barney", isbn: 345678 });
 };
 
-request.onsuccess = function (event) {
-  var db = event.target.result;
+request.onsuccess = function (event: Event) {
+  if (!event.target) return;
+
+  const target = event.target as IDBRequest<IDBDatabase>;
+
+  var db = target.result;
 
   var tx = db.transaction("books");
 
   tx.objectStore("books")
     .index("by_title")
     .get("Quarry Memories")
-    .addEventListener("success", function (event) {
-      console.log("From index:", event.target.result);
+    .addEventListener("success", function (event: Event) {
+      if (!event.target) return;
+
+      const target = event.target as IDBRequest<{
+        title: string;
+        author: string;
+        isbn: number;
+      }>;
+
+      console.log("From index:", target.result);
     });
 
   tx.objectStore("books").openCursor(IDBKeyRange.lowerBound(200000)).onsuccess =
-    function (event) {
-      var cursor = event.target.result;
+    function (event: Event) {
+      if (!event.target) return;
+
+      const target = event.target as IDBRequest<IDBCursorWithValue | null>;
+
+      var cursor = target.result;
+
       if (cursor) {
         console.log("From cursor:", cursor.value);
         cursor.continue();
