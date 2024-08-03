@@ -1,10 +1,11 @@
 import { indexedDB, IDBKeyRange } from "fake-indexeddb";
 
-var request = indexedDB.open("test", 3);
+const request = indexedDB.open("test", 3);
 
 request.onupgradeneeded = function () {
-	var db = request.result;
-	var store = db.createObjectStore("books", { keyPath: "isbn" });
+	const db = request.result;
+	const store = db.createObjectStore("books", { keyPath: "isbn" });
+
 	store.createIndex("by_title", "title", { unique: true });
 
 	store.put({ title: "Quarry Memories", author: "Fred", isbn: 123456 });
@@ -17,9 +18,9 @@ request.onsuccess = function (event: Event) {
 
 	const target = event.target as IDBRequest<IDBDatabase>;
 
-	var db = target.result;
+	const db = target.result;
 
-	var tx = db.transaction("books");
+	const tx = db.transaction("books");
 
 	tx.objectStore("books")
 		.index("by_title")
@@ -42,7 +43,7 @@ request.onsuccess = function (event: Event) {
 
 			const target = event.target as IDBRequest<IDBCursorWithValue | null>;
 
-			var cursor = target.result;
+			const cursor = target.result;
 
 			if (cursor) {
 				console.log("From cursor:", cursor.value);
