@@ -23,6 +23,8 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noPropertyAccessFromIndexSignature": true,
-		"noUncheckedIndexedAccess": true
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true
 	}
 }
