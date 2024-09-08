@@ -1,18 +1,14 @@
-import { indexedDB, IDBKeyRange } from "fake-indexeddb";
-import { Effect, Console } from "effect";
+import { Effect, Stream } from "effect";
+import {
+	createTransaction,
+	get,
+	getObjectStore,
+	open,
+	openCursorAsStream,
+	openIndex,
+} from "./eidb";
 
-const program = Console.log("Hello, World!");
-
-Effect.runSync(program);
-
-const request = indexedDB.open("test", 3);
-
-request.onupgradeneeded = (event: Event) => {
-	if (!event.target) return;
-
-	const target = event.target as IDBRequest<IDBDatabase>;
-	const db = target.result;
-
+const db = open("test", 1, (db) => {
 	const store = db.createObjectStore("books", { keyPath: "isbn" });
 
 	store.createIndex("by_title", "title", { unique: true });
@@ -20,45 +16,28 @@ request.onupgradeneeded = (event: Event) => {
 	store.put({ title: "Quarry Memories", author: "Fred", isbn: 123456 });
 	store.put({ title: "Water Buffaloes", author: "Fred", isbn: 234567 });
 	store.put({ title: "Bedrock Nights", author: "Barney", isbn: 345678 });
+});
+
+const transaction = createTransaction(db, "books", () => {
+	console.log("Transaction complete!");
+});
+
+const objectStore = getObjectStore(transaction, "books");
+
+const opennedIndex = openIndex(objectStore, "by_title");
+
+type Book = {
+	title: string;
+	author: string;
+	isbn: number;
 };
 
-request.onsuccess = (event: Event) => {
-	if (!event.target) return;
+const book = get<Book>(opennedIndex, "Quarry Memories");
 
-	const target = event.target as IDBRequest<IDBDatabase>;
-	const db = target.result;
+Effect.runPromise(book).then(console.log, console.error);
 
-	const tx = db.transaction("books");
+const opennedCursorStream = openCursorAsStream<Book>(objectStore);
 
-	tx.objectStore("books")
-		.index("by_title")
-		.get("Quarry Memories")
-		.addEventListener("success", (event: Event) => {
-			if (!event.target) return;
+const collectedBooks = Stream.runCollect(opennedCursorStream);
 
-			const target = event.target as IDBRequest<{
-				title: string;
-				author: string;
-				isbn: number;
-			}>;
-
-			console.log("From index:", target.result);
-		});
-
-	tx.objectStore("books").openCursor(IDBKeyRange.lowerBound(200000)).onsuccess =
-		(event: Event) => {
-			if (!event.target) return;
-
-			const target = event.target as IDBRequest<IDBCursorWithValue | null>;
-			const cursor = target.result;
-
-			if (cursor) {
-				console.log("From cursor:", cursor.value);
-				cursor.continue();
-			}
-		};
-
-	tx.oncomplete = () => {
-		console.log("All done!");
-	};
-};
+Effect.runPromise(collectedBooks).then(console.log, console.error);

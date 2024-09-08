@@ -1,5 +1,10 @@
 # effect-indexeddb-playground
 
+A work-in-progress [experiment](index.ts) that wraps Effect.ts over IndexedDB.
+
+- [Effect.ts](https://effect.website/)
+- [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
+
 To install dependencies:
 
 ```bash
