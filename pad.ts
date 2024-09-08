@@ -1,10 +1,10 @@
 import { Effect } from "effect";
 import type { UnknownException } from "effect/Cause";
 
-interface User {
+type User = {
 	readonly id: number;
 	readonly name: string;
-}
+};
 
 const getUser = (userId: number): Effect.Effect<User, Error> => {
 	const userDatabase: Record<number, User> = {
@@ -216,7 +216,7 @@ Output:
 }
 */
 
-import { Console, Schedule, Fiber } from "effect";
+import { Console, Schedule } from "effect";
 
 const program7 = Effect.repeat(
 	Console.log("running..."),
